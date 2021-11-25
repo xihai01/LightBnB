@@ -51,7 +51,21 @@ exports.getUserWithEmail = getUserWithEmail;
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithId = function(id) {
-  return Promise.resolve(users[id]);
+  const query = `
+  SELECT *
+  FROM users
+  WHERE id = $1;
+  `;
+  const values = [id];
+  return pool
+    .query(query, values)
+    .then(res => {
+      return Promise.resolve(res.rows[0]);
+    })
+    .catch(err => {
+      return Promise.reject(err);
+    });
+  //return Promise.resolve(users[id]);
 }
 exports.getUserWithId = getUserWithId;
 
