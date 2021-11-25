@@ -136,7 +136,70 @@ exports.getAllReservations = getAllReservations;
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 const getAllProperties = function(options, limit = 10) {
-  const query = `
+  //store the query string and params
+  let mainQuery = `SELECT properties.*, AVG(property_reviews.rating) as average_rating
+    FROM properties
+    JOIN property_reviews ON property_reviews.property_id = properties.id
+    `;
+  /*   WHERE city LIKE '%Vancouver%'
+    HAVING AVG(property_reviews.rating) >= 4
+     */
+    let query1 = ''; //hold WHERE
+    let query2 = `GROUP BY properties.id`;
+    let query3 = ''; //hold HAVING
+    let query4 = `ORDER BY cost_per_night
+    LIMIT $1;
+    `;
+  //mainQuery = query1 + query2 + query3 + query4
+console.log(options);
+  let params = [limit];
+  //use conditionals to check options
+  //filter by owner_id if exists
+  if (options.owner_id) {
+    params.push(options.owner_id);
+    query1 += `WHERE owner_id = $${params.length}`;
+  }
+  //filter by city if it exists
+  if (options.city) {
+    params.push(`%${options.city}%`);
+    query1 += `WHERE city LIKE $${params.length}`;
+  }
+  //filter by minimum_price_per_night
+  if (options.minimum_price_per_night) {
+    params.push(options.minimum_price_per_night * 100);
+    //check if this is the first WHERE clause
+    if (params.length === 2) {
+      query1 += `WHERE cost_per_night >= $${params.length}`;
+    }
+    query1 += `AND cost_per_night >= $${params.length}`;
+  }
+  //filter by maximum price
+  if (options.maximum_price_per_night) {
+    params.push(options.maximum_price_per_night * 100);
+    if (params.length === 2) {
+      query1 += `WHERE cost_per_night <= $${params.length}`;
+    }
+    query1 += `AND cost_per_night <= $${params.length}`;
+  }
+  //filter by minimum rating
+  if (options.minimum_rating) {
+    params.push(options.minimum_rating);
+    query3 += `HAVING AVG(property_reviews.rating) >= $${params.length}`;
+  }
+  //print out query string and params
+  mainQuery += ' ' + query1 + ' ' + query2 + ' ' + query3 + ' ' + query4;
+  console.log(mainQuery, params);
+
+  return pool
+    .query(mainQuery, params)
+    .then(res => {
+      return Promise.resolve(res.rows);
+    })
+    .catch(err => {
+      return Promise.reject(err);
+    });
+  //pool.query
+  /* const query = `
     SELECT *
     FROM properties
     LIMIT $1;`;
@@ -148,7 +211,7 @@ const getAllProperties = function(options, limit = 10) {
     })
     .catch(err => {
       console.log(err.message);
-    });
+    }); */
 /*   const limitedProperties = {};
   for (let i = 1; i <= limit; i++) {
     limitedProperties[i] = properties[i];
