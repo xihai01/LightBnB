@@ -30,6 +30,10 @@ module.exports = function(router, database) {
         return user;
       }
       return null;
+    })
+    .catch(err => {
+      console.log(err);
+      return null;
     });
   }
   exports.login = login;
