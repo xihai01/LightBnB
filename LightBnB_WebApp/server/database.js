@@ -32,16 +32,6 @@ const getUserWithEmail = function(email) {
     .catch(err => {
       return Promise.reject(err);
     });
-/*   let user;
-  for (const userId in users) {
-    user = users[userId];
-    if (user.email.toLowerCase() === email.toLowerCase()) {
-      break;
-    } else {
-      user = null;
-    }
-  }
-  return Promise.resolve(user); */
 }
 exports.getUserWithEmail = getUserWithEmail;
 
@@ -65,7 +55,6 @@ const getUserWithId = function(id) {
     .catch(err => {
       return Promise.reject(err);
     });
-  //return Promise.resolve(users[id]);
 }
 exports.getUserWithId = getUserWithId;
 
@@ -89,10 +78,6 @@ const addUser =  function(user) {
     .catch(err => {
       return Promise.reject(err);
     });
-  /*   const userId = Object.keys(users).length + 1;
-  user.id = userId;
-  users[userId] = user;
-  return Promise.resolve(user); */
 }
 exports.addUser = addUser;
 
@@ -123,7 +108,6 @@ const getAllReservations = function(guest_id, limit = 10) {
     .catch(err => {
       return Promise.reject(err);
     });
-  //return getAllProperties(null, 2);
 }
 exports.getAllReservations = getAllReservations;
 
@@ -141,17 +125,15 @@ const getAllProperties = function(options, limit = 10) {
     FROM properties
     JOIN property_reviews ON property_reviews.property_id = properties.id
     `;
-  /*   WHERE city LIKE '%Vancouver%'
-    HAVING AVG(property_reviews.rating) >= 4
-     */
-    let query1 = ''; //hold WHERE
-    let query2 = `GROUP BY properties.id`;
-    let query3 = ''; //hold HAVING
-    let query4 = `ORDER BY cost_per_night
-    LIMIT $1;
-    `;
+
+  let query1 = ''; //hold WHERE
+  let query2 = `GROUP BY properties.id`;
+  let query3 = ''; //hold HAVING
+  let query4 = `ORDER BY cost_per_night
+  LIMIT $1;
+  `;
+
   //mainQuery = query1 + query2 + query3 + query4
-console.log(options);
   let params = [limit];
   //use conditionals to check options
   //filter by owner_id if exists
@@ -188,7 +170,6 @@ console.log(options);
   }
   //print out query string and params
   mainQuery += ' ' + query1 + ' ' + query2 + ' ' + query3 + ' ' + query4;
-  console.log(mainQuery, params);
 
   return pool
     .query(mainQuery, params)
@@ -198,25 +179,6 @@ console.log(options);
     .catch(err => {
       return Promise.reject(err);
     });
-  //pool.query
-  /* const query = `
-    SELECT *
-    FROM properties
-    LIMIT $1;`;
-  const values = [limit];
-  return pool
-    .query(query, values)
-    .then(res => {
-      return res.rows;
-    })
-    .catch(err => {
-      console.log(err.message);
-    }); */
-/*   const limitedProperties = {};
-  for (let i = 1; i <= limit; i++) {
-    limitedProperties[i] = properties[i];
-  }
-  return Promise.resolve(limitedProperties); */
 }
 exports.getAllProperties = getAllProperties;
 
@@ -277,7 +239,6 @@ const addProperty = function(property) {
   property.street ? values.push(property.street) : values.push('Street');
   property.post_code ? values.push(property.post_code) : values.push('Post Code');
 
-  console.log(query, values);
   return pool
     .query(query, values)
     .then(res => {
@@ -286,9 +247,5 @@ const addProperty = function(property) {
     .catch(err => {
       return Promise.reject(err);
     });
-/*   const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property); */
 }
 exports.addProperty = addProperty;
