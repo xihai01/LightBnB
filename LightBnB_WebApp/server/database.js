@@ -227,9 +227,68 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
+  const query = `
+  INSERT INTO properties (
+    title,
+    description,
+    owner_id,
+    cover_photo_url,
+    thumbnail_photo_url,
+    cost_per_night,
+    parking_spaces,
+    number_of_bathrooms,
+    number_of_bedrooms,
+    province,
+    city,
+    country,
+    street,
+    post_code)
+  VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14
+  ) RETURNING *;
+  `;
+  const values = [];
+
+  property.title ? values.push(property.title) : values.push('title');
+  values.push(property.description);
+  values.push(property.owner_id);
+  property.cover_photo_url ? values.push(property.cover_photo_url) : values.push('insert cover photo');
+  property.thumbnail_photo_url ? values.push(property.thumbnail_photo_url) : values.push('insert thumbnail photo');
+  values.push(property.cost_per_night);
+  values.push(property.parking_spaces);
+  values.push(property.number_of_bathrooms);
+  values.push(property.number_of_bedrooms);
+  property.province ? values.push(property.province) : values.push('Province');
+  property.city ? values.push(property.city) : values.push('City');
+  property.country ? values.push(property.country) : values.push('Country');
+  property.street ? values.push(property.street) : values.push('Street');
+  property.post_code ? values.push(property.post_code) : values.push('Post Code');
+
+  console.log(query, values);
+  return pool
+    .query(query, values)
+    .then(res => {
+      return Promise.resolve(res.rows);
+    })
+    .catch(err => {
+      return Promise.reject(err);
+    });
+/*   const propertyId = Object.keys(properties).length + 1;
   property.id = propertyId;
   properties[propertyId] = property;
-  return Promise.resolve(property);
+  return Promise.resolve(property); */
 }
 exports.addProperty = addProperty;
